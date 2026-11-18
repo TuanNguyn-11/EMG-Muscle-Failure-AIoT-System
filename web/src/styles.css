@@ -1,0 +1,114 @@
+/* Token từ design-system/emg-muscle-failure/MASTER.md */
+:root {
+  color-scheme: dark;
+  --color-background: #0F172A;
+  --color-card: #1B2336;
+  --color-muted: #272F42;
+  --color-border: #475569;
+  --color-foreground: #F8FAFC;
+  --color-muted-foreground: #94A3B8;
+  --color-ring: #FFFFFF;
+
+  --color-effort: #EF4444;
+  --color-skin: #E8B899;
+  --color-emg: #38BDF8;
+  --color-angle: #A78BFA;
+  --color-failure: #F59E0B;
+  --color-ok: #22C55E;
+  --color-live: #22C55E;
+  --color-stale: #94A3B8;
+
+  --text-xs: 12px; --text-sm: 14px; --text-base: 16px; --text-lg: 20px;
+  --text-display: 40px; --text-banner: 24px;
+  --space-xs: 2px; --space-sm: 4px; --space-md: 8px; --space-lg: 12px; --space-xl: 16px; --space-2xl: 24px;
+  --radius-sm: 6px; --radius-md: 10px;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; } /* svg[hidden] không tự ẩn ở mọi trình duyệt */
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font: 400 var(--text-base)/1.5 "Fira Sans", system-ui, sans-serif;
+}
+
+.app-header {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-md);
+  height: 56px; padding: 0 var(--space-xl);
+  border-bottom: 1px solid var(--color-border);
+}
+.app-header h1 { margin: 0; font-size: var(--text-lg); font-weight: 600; }
+
+.status-pill { display: inline-flex; gap: var(--space-sm); align-items: center; font-size: var(--text-sm); color: var(--color-stale); }
+.status-pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.status-pill[data-state="live"] { color: var(--color-live); }
+
+.num { font-family: "Fira Code", monospace; font-variant-numeric: tabular-nums; }
+
+/* ---- Trang live (design-system/.../pages/live.md) ---- */
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-md);
+  min-height: 44px; min-width: 44px; padding: 0 var(--space-xl);
+  border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+  background: var(--color-muted); color: var(--color-foreground);
+  font: 500 var(--text-base)/1 "Fira Sans", sans-serif; cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.btn:hover { background: #334155; }
+.btn:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+
+.status-pill { margin: 0; }
+.status-pill .num, .status-pill .device { color: var(--color-muted-foreground); }
+
+.live-grid {
+  display: grid; gap: var(--space-md); padding: var(--space-md);
+  grid-template-columns: 5fr 7fr;
+  height: calc(100dvh - 56px);
+}
+.scene { position: relative; min-height: 0; padding: 0; overflow: hidden; }
+.scene canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.scene-overlay { position: absolute; left: var(--space-lg); bottom: var(--space-lg); display: flex; flex-direction: column; gap: var(--space-sm); pointer-events: none; }
+.scene-angle { font-size: var(--text-display); line-height: 1.2; color: var(--color-angle); }
+.effort { font-size: var(--text-sm); color: var(--color-muted-foreground); }
+.effort-track { width: 160px; height: 8px; border-radius: 4px; background: var(--color-muted); overflow: hidden; }
+.effort-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--color-skin), var(--color-effort)); }
+
+.ai-banner {
+  display: flex; gap: var(--space-md); align-items: center;
+  padding: var(--space-lg) var(--space-xl); border-radius: var(--radius-md);
+  font: 600 var(--text-banner)/1.2 "Fira Sans", sans-serif; color: #0F172A;
+}
+.ai-banner[data-state="ok"] { background: var(--color-ok); }
+.ai-banner[data-state="failure"] { background: var(--color-failure); }
+.ai-banner[data-state="ok"] .i-failure, .ai-banner[data-state="failure"] .i-ok { display: none; }
+.ai-banner.emphasize { animation: emphasize 300ms ease-out; }
+@keyframes emphasize { 50% { transform: scale(1.02); } }
+@media (prefers-reduced-motion: reduce) { .ai-banner.emphasize { animation: none; } }
+
+.charts { display: flex; flex-direction: column; gap: var(--space-md); min-height: 0; }
+.chart-card { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: var(--space-sm); padding: var(--space-md) var(--space-lg); }
+.chart-card header { display: flex; justify-content: space-between; align-items: baseline; }
+.chart-card h2 { margin: 0; font-size: var(--text-sm); font-weight: 500; color: var(--color-muted-foreground); }
+.chart-card h2 small { font-size: var(--text-xs); }
+.chart-card .value { font-size: var(--text-base); }
+.plot { flex: 1; min-height: 0; overflow: hidden; }
+.empty { margin: 0; color: var(--color-muted-foreground); font-size: var(--text-sm); }
+.charts .btn { align-self: flex-start; }
+
+@media (max-width: 1023px) {
+  .live-grid { grid-template-columns: 1fr; height: auto; }
+  .scene { height: 45vh; }
+  .chart-card { flex: none; height: 180px; }
+}
+@media (max-width: 767px) {
+  .scene { height: 40vh; }
+  .chart-card { height: 160px; }
+  .status-pill .device { display: none; }
+}

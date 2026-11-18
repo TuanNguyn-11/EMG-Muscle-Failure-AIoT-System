@@ -1,0 +1,27 @@
+{
+  "name": "emg-dashboard-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "emu": "firebase emulators:start --only database,auth --project demo-emg",
+    "simulate": "tsx tools/simulate-device.ts",
+    "test": "vitest run tests/unit",
+    "test:rules": "firebase emulators:exec --only database --project demo-emg \"vitest run tests/rules\"",
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "firebase": "^13.4.0",
+    "three": "^0.187.0",
+    "uplot": "^1.6.32"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "@types/node": "^26.6.6",
+    "@types/three": "^0.187.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}

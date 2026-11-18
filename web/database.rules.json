@@ -1,0 +1,82 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "config": {
+      "deviceUids": {
+        "$uid": { ".validate": "newData.isString()" }
+      }
+    },
+
+    "devices": {
+      ".read": true,
+      "$deviceId": {
+        "live": {
+          ".write": "auth != null && root.child('config/deviceUids/' + auth.uid).val() === $deviceId",
+          ".validate": "newData.hasChildren(['sessionId', 't', 'rms', 'angle', 'label'])",
+          "sessionId": { ".validate": "newData.isString() && newData.val().matches(/^s[0-9]{13}$/)" },
+          "t": { ".validate": "newData.isNumber()" },
+          "rms": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "angle": { ".validate": "newData.isNumber() && newData.val() >= -10 && newData.val() <= 180" },
+          "label": { ".validate": "newData.val() === 0 || newData.val() === 1" },
+          "$other": { ".validate": false }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "sessions": {
+      ".read": true,
+      "$sid": {
+        ".write": "auth != null && $sid.matches(/^s[0-9]{13}$/) && newData.child('meta/deviceId').val() === root.child('config/deviceUids/' + auth.uid).val() && (!data.exists() || data.child('meta/deviceId').val() === newData.child('meta/deviceId').val())",
+        "meta": {
+          ".validate": "newData.hasChildren(['deviceId', 'startedAt', 'fsRaw', 'rmsRef', 'fwVersion'])",
+          "deviceId": { ".validate": "newData.isString()" },
+          "startedAt": { ".validate": "newData.isNumber()" },
+          "endedAt": { ".validate": "newData.isNumber() && newData.val() >= newData.parent().child('startedAt').val()" },
+          "fsRaw": { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "rmsRef": { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "fwVersion": { ".validate": "newData.isString()" },
+          "$other": { ".validate": false }
+        },
+        "summary": {
+          ".validate": "newData.hasChildren(['rmsMax', 'durationMs'])",
+          "failureAtMs": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "rmsMax": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "durationMs": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "$other": { ".validate": false }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "sessionData": {
+      ".read": true,
+      "$sid": {
+        ".write": "auth != null && newData.exists() && root.child('sessions/' + $sid + '/meta/deviceId').val() === root.child('config/deviceUids/' + auth.uid).val()",
+        "processed": {
+          "$t": {
+            ".validate": "$t.matches(/^[0-9]{13}$/) && newData.hasChildren(['t', 'rms', 'angle', 'label'])",
+            "t": { ".validate": "newData.isNumber()" },
+            "rms": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "angle": { ".validate": "newData.isNumber() && newData.val() >= -10 && newData.val() <= 180" },
+            "label": { ".validate": "newData.val() === 0 || newData.val() === 1" },
+            "$other": { ".validate": false }
+          }
+        },
+        "raw": {
+          "$t0": {
+            ".validate": "$t0.matches(/^[0-9]{13}$/) && newData.hasChildren(['t0', 'v'])",
+            "t0": { ".validate": "newData.isNumber()" },
+            "v": {
+              "$i": { ".validate": "newData.isNumber() && newData.val() >= -32768 && newData.val() <= 32767" }
+            },
+            "$other": { ".validate": false }
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}

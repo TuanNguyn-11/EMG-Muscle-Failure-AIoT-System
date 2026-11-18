@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EMG Muscle Failure — Live</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fira+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>EMG Muscle Failure</h1>
+      <p id="conn" class="status-pill" data-state="waiting">
+        <span id="conn-state" role="status" aria-atomic="true">Đang kết nối…</span>
+        <span id="conn-detail" class="num"></span>
+        <span class="device num">esp32s3-01</span>
+      </p>
+    </header>
+
+    <main class="live-grid">
+      <section id="scene" class="card scene" role="img" aria-label="Mô hình tay phải">
+        <div class="scene-overlay" aria-hidden="true">
+          <span id="scene-angle" class="num scene-angle">—°</span>
+          <div class="effort">
+            <span>Mức gồng <span id="scene-effort" class="num">—</span></span>
+            <div class="effort-track"><div id="scene-effort-bar" class="effort-bar"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="charts" aria-label="Biểu đồ tín hiệu">
+        <div id="ai-banner" class="ai-banner" data-state="ok" role="status" aria-atomic="true" hidden>
+          <svg class="i-ok" aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <svg class="i-failure" aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16h.01"/><path d="M12 8v4"/><path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/></svg>
+          <span id="ai-text">CHƯA THẤT BẠI CƠ</span>
+        </div>
+
+        <article class="card chart-card">
+          <header><h2>EMG thô</h2><span id="emg-val" class="num value">—</span></header>
+          <div id="chart-emg" class="plot"></div>
+        </article>
+        <article class="card chart-card">
+          <header><h2>RMS <small>(nét đứt = MVC)</small></h2><span id="rms-val" class="num value">—</span></header>
+          <div id="chart-rms" class="plot"></div>
+        </article>
+        <article class="card chart-card">
+          <header><h2>Góc khuỷu</h2><span id="angle-val" class="num value">—</span></header>
+          <div id="chart-angle" class="plot"></div>
+        </article>
+
+        <p id="charts-empty" class="empty">Chưa có phiên đang chạy. Bật thiết bị hoặc chạy <code>npm run simulate</code>.</p>
+
+        <button id="pause" class="btn" type="button" aria-pressed="false">
+          <svg class="i-pause" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+          <svg class="i-play" aria-hidden="true" hidden width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <span>Tạm dừng biểu đồ</span>
+        </button>
+      </section>
+    </main>
+    <script type="module" src="/src/live.ts"></script>
+  </body>
+</html>

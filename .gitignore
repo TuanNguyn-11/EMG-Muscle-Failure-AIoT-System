@@ -1,0 +1,52 @@
+# Whitelist: thư mục gốc chứa nhiều PDF bài báo, báo cáo .docx, video, dữ liệu thô
+# -> bỏ qua tất cả, chỉ mở những gì muốn push. Thêm thư mục mới bằng một dòng !/ten/
+/*
+!/.gitignore
+!/README.md
+!/SPEC.md
+!/docs/
+!/tasks/
+!/design-system/
+!/web/
+# Mở sau khi sẵn sàng push:
+# !/firmware/
+# !/matlab/
+
+# Node / Vite
+node_modules/
+dist/
+*.local
+
+# Firebase
+.firebase/
+*-debug.log
+.runtimeconfig.json
+*service-account*.json
+*serviceAccount*.json
+*-adminsdk-*.json
+
+# Bí mật / môi trường
+.env
+.env.*
+!.env.example
+
+# Dữ liệu và file nặng (phòng khi lọt vào thư mục được mở)
+*.pdf
+*.mp4
+*.zip
+*.bin
+*.mat
+
+# Hệ điều hành / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# File nguồn model 3D (chỉ đưa body.glb đã xử lý lên git)
+*.fbx
+*.blend
+*.blend1
+*.mhx2
+*_preview.png
