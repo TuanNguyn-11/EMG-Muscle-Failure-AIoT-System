@@ -24,6 +24,9 @@ Cho nhóm và giảng viên/hội đồng mở một link để xem **trực ti�
 - Ba biểu đồ chạy theo thời gian: **EMG thô**, **RMS**, **góc khuỷu**.
 - Nhãn AI riêng biệt: `CHƯA THẤT BẠI CƠ` / `ĐÃ THẤT BẠI CƠ` (không dùng màu đỏ của cơ để báo nhãn này).
 - Trang **lịch sử**: danh sách phiên; mở một phiên để phát lại biểu đồ + 3D, có mốc thời điểm AI báo thất bại cơ.
+- **Đếm lần tập** (tính từ góc khuỷu): *chuẩn* = gập ≥ 120°, *không chuẩn* = gập 45–120°; lần tập kết thúc khi tay về ≤ 30° (`web/src/reps.ts`).
+- Nút **Fake**: sinh dữ liệu tập liên tục ngay trong trình duyệt (không ghi Firebase) để demo khi chưa có thiết bị; thất bại cơ sau 30 s, sau đó biên độ giảm dần nên các lần tập thành không chuẩn.
+- Giao diện dùng bảng màu chung với app Fall Guard / Healthcare Map (xem design-system MASTER.md).
 
 ### User stories
 

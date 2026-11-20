@@ -1,5 +1,5 @@
 // Tín hiệu giả cho simulator: hàm thuần, có seed, để test được.
-import type { Label, Processed, RawChunk } from '../src/schema';
+import type { Label, Processed, RawChunk } from './schema';
 
 export interface SimParams {
   rmsRef: number;      // mV, MVC
@@ -7,12 +7,22 @@ export interface SimParams {
   periodS: number;     // một lần curl (lên + xuống)
   maxAngle: number;    // độ
   failureAtS: number;  // thời điểm AI "báo" thất bại cơ
+  partialEvery: number; // trước thất bại: cứ N lần có 1 lần gập thiếu biên độ
 }
 
-export const DEFAULT_PARAMS: SimParams = { rmsRef: 0.6, restRms: 0.03, periodS: 3, maxAngle: 140, failureAtS: 60 };
+export const DEFAULT_PARAMS: SimParams = { rmsRef: 0.6, restRms: 0.03, periodS: 3, maxAngle: 140, failureAtS: 60, partialEvery: 7 };
+
+/** Góc gập lớn nhất của lần tập thứ `rep`: thỉnh thoảng thiếu biên độ; sau thất bại cơ biên độ giảm dần. */
+export function repPeak(rep: number, p: SimParams): number {
+  const failRep = Math.floor(p.failureAtS / p.periodS);
+  if (rep >= failRep) return p.maxAngle * Math.max(0.5, 0.85 - 0.05 * (rep - failRep));
+  return rep % p.partialEvery === p.partialEvery - 1 ? p.maxAngle * 0.6 : p.maxAngle;
+}
 
 export function angleAt(tS: number, p: SimParams): number {
-  return (p.maxAngle * (1 - Math.cos((2 * Math.PI * tS) / p.periodS))) / 2;
+  const rep = Math.floor(tS / p.periodS);
+  const frac = tS / p.periodS - rep;
+  return (repPeak(rep, p) * (1 - Math.cos(2 * Math.PI * frac))) / 2; // về 0° ở ranh giới mỗi lần ⇒ liên tục
 }
 
 /** RMS tăng theo góc và tăng dần theo thời gian (bù mỏi), không vượt 1.1·MVC. */

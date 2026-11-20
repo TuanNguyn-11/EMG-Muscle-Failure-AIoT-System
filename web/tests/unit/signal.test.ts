@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseProcessed, parseRawChunk, RAW_CHUNK_LEN } from '../../src/schema';
-import { angleAt, DEFAULT_PARAMS as P, labelAt, processedAt, rawChunkAt, rmsAt, seededRandom } from '../../tools/signal';
+import { angleAt, DEFAULT_PARAMS as P, labelAt, processedAt, rawChunkAt, rmsAt, seededRandom } from '../../src/signal';
 
 const T0 = 1763470000000;
 

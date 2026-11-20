@@ -3,7 +3,7 @@
 // ponytail: chỉ nhắm emulator (token "owner" để đăng ký thiết bị); project thật làm ở T10.
 import { parseArgs } from 'node:util';
 import { RAW_CHUNK_LEN } from '../src/schema';
-import { DEFAULT_PARAMS, processedAt, rawChunkAt, seededRandom } from './signal';
+import { DEFAULT_PARAMS, processedAt, rawChunkAt, seededRandom } from '../src/signal';
 
 const DB = 'http://127.0.0.1:9000';
 const NS = 'demo-emg-default-rtdb';
