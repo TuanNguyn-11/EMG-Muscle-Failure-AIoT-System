@@ -1,14 +1,38 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { bicepsColor, smoothTo } from '../color';
 import { elbowRotationX } from './elbow';
 
-// ponytail: người dựng bằng khối hình học (tròn xoay, chi thuôn) trong lúc chờ body.glb thật.
-// T7 thay bằng body.glb nhưng giữ nguyên hai hàm setElbowAngle / setBicepsIntensity.
+// Mặc định nạp public/models/body.glb (cánh tay phải của nhóm, xương ForeArm, vật liệu MAT_Biceps).
+// Người dựng bằng khối hình học bên dưới chỉ là phương án dự phòng khi không nạp được file.
 
 const COLOR_TAU_MS = 100;
-const ANGLE_TAU_MS = 60;
-const BICEPS = { x: 0.044, y: 0.1, z: 0.042 }; // bán trục khi thả lỏng // dữ liệu 10 Hz → làm mượt nhẹ để tay không giật
+const ANGLE_TAU_MS = 60; // dữ liệu 10 Hz → làm mượt nhẹ để tay không giật
+const BICEPS = { x: 0.044, y: 0.1, z: 0.042 }; // bán trục khi thả lỏng (người dựng bằng khối)
+const Z_AXIS = new THREE.Vector3(0, 0, 1);
+
+/** xương có trọng số lớn nhất ở đỉnh i */
+function dominantBone(m: THREE.SkinnedMesh, i: number): THREE.Bone | undefined {
+  const idx = m.geometry.attributes.skinIndex!, w = m.geometry.attributes.skinWeight!;
+  let best = 0;
+  for (let k = 1; k < 4; k++) if (w.getComponent(i, k) > w.getComponent(i, best)) best = k;
+  return m.skeleton.bones[idx.getComponent(i, best)];
+}
+
+/** tâm (toạ độ thế giới, đã áp xương) của các đỉnh thoả keep; lấy mẫu 1/5 đỉnh cho nhanh */
+function centroid(meshes: THREE.SkinnedMesh[], keep: (m: THREE.SkinnedMesh, i: number) => boolean): THREE.Vector3 {
+  const sum = new THREE.Vector3(), v = new THREE.Vector3();
+  let n = 0;
+  for (const m of meshes)
+    for (let i = 0; i < m.geometry.attributes.position!.count; i += 5) {
+      if (!keep(m, i)) continue;
+      sum.add(m.localToWorld(m.getVertexPosition(i, v)));
+      n++;
+    }
+  return n ? sum.divideScalar(n) : sum;
+}
 
 export class Arm3D {
   private readonly renderer: THREE.WebGLRenderer;
@@ -18,6 +42,9 @@ export class Arm3D {
   private readonly elbow = new THREE.Group();
   private readonly bicepsMat: THREE.MeshStandardMaterial;
   private readonly biceps: THREE.Mesh;
+  /** xương cẳng tay của body.glb và trục gập (hệ cục bộ của xương) tính lúc nạp */
+  private foreArm: { bone: THREE.Object3D; rest: THREE.Quaternion; axis: THREE.Vector3 } | null = null;
+  private readonly bend = new THREE.Quaternion();
   private readonly reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   private targetAngle = 0;
@@ -153,6 +180,7 @@ export class Arm3D {
     this.resize();
     this.applyColor();
     this.renderer.setAnimationLoop(() => this.frame());
+    void this.loadModel([person, shadow], skin, steel);
   }
 
   setElbowAngle(deg: number): void {
@@ -161,6 +189,86 @@ export class Arm3D {
 
   setBicepsIntensity(k: number): void {
     this.targetIntensity = k;
+  }
+
+  private async loadModel(fallback: THREE.Object3D[], skin: THREE.Material, steel: THREE.Material) {
+    const base = import.meta.env.BASE_URL;
+    const draco = new DRACOLoader(); // bộ giải nén đi kèm three, Vite tự đóng gói
+    let model: THREE.Group;
+    try {
+      model = (await new GLTFLoader().setDRACOLoader(draco).loadAsync(`${base}models/body.glb`)).scene;
+    } catch (err) {
+      console.warn('Không nạp được body.glb, dùng người dựng bằng khối.', err);
+      return;
+    } finally {
+      draco.dispose();
+    }
+    const upper = model.getObjectByName('UpperArm');
+    const fore = model.getObjectByName('ForeArm');
+    const hand = model.getObjectByName('Hand');
+    if (!upper || !fore || !hand) return console.warn('body.glb thiếu xương UpperArm/ForeArm/Hand, dùng người dựng bằng khối.');
+
+    const skinned: THREE.SkinnedMesh[] = [];
+    let bicepsMesh: THREE.SkinnedMesh | undefined;
+    model.traverse((o) => {
+      const m = o as THREE.SkinnedMesh;
+      if (!m.isSkinnedMesh) return;
+      skinned.push(m);
+      const isBiceps = (m.material as THREE.Material).name === 'MAT_Biceps';
+      if (isBiceps) bicepsMesh = m;
+      m.material = isBiceps ? this.bicepsMat : skin;
+      m.frustumCulled = false; // khung bao của lưới có xương không theo tư thế gập
+    });
+    if (!bicepsMesh) return console.warn('body.glb thiếu vật liệu MAT_Biceps, dùng người dựng bằng khối.');
+
+    // Chuẩn hoá: cánh tay thõng cao 1 đơn vị, tâm ở gốc toạ độ.
+    model.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(model);
+    model.position.sub(box.getCenter(new THREE.Vector3()));
+    const root = new THREE.Group();
+    root.scale.setScalar(1 / box.getSize(new THREE.Vector3()).y);
+    root.add(model);
+    this.scene.add(root);
+    root.updateMatrixWorld(true);
+
+    // Tự suy ra trục gập từ hình học, không phụ thuộc hệ trục xương sau khi xuất glTF:
+    //   d = hướng bắp tay (vuông góc cánh tay trên), v = cẳng tay; gập = quay v về phía d ⇒ trục = v × d.
+    const S = upper.getWorldPosition(new THREE.Vector3());
+    const E = fore.getWorldPosition(new THREE.Vector3());
+    const B = centroid([bicepsMesh], () => true);
+    const H = centroid(skinned, (m, i) => dominantBone(m, i) === hand);
+    const up = E.clone().sub(S);
+    const d = B.clone().sub(S);
+    d.sub(up.clone().multiplyScalar(d.dot(up) / up.lengthSq())).normalize();
+    const axisW = H.clone().sub(E).cross(d).normalize();
+    const toLocal = (o: THREE.Object3D, w: THREE.Vector3) => w.clone().applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion()).invert());
+
+    // tạ: tâm ở giữa nắm tay, thanh tạ song song trục gập (cầm ngửa lòng bàn tay như khi curl)
+    const dumbbell = new THREE.Group();
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.26, 12), steel);
+    bar.rotation.x = Math.PI / 2;
+    dumbbell.add(bar);
+    for (const dz of [-0.1, 0.1]) {
+      const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.045, 32), steel);
+      plate.rotation.x = Math.PI / 2;
+      plate.position.z = dz;
+      dumbbell.add(plate);
+    }
+    hand.add(dumbbell);
+    dumbbell.position.copy(hand.worldToLocal(H.clone()));
+    dumbbell.quaternion.setFromUnitVectors(Z_AXIS, toLocal(hand, axisW));
+    dumbbell.scale.setScalar(1 / hand.getWorldScale(new THREE.Vector3()).x); // về đơn vị cảnh
+
+    fallback.forEach((o) => this.scene.remove(o));
+    this.foreArm = { bone: fore, rest: fore.quaternion.clone(), axis: toLocal(fore, axisW) };
+
+    // nhìn chủ yếu dọc trục gập (thấy rõ mặt phẳng gập), chếch về phía bắp tay và hơi từ trên
+    this.controls.target.copy(E).add(new THREE.Vector3(0, 0.05, 0));
+    const dir = axisW.clone().add(d.clone().multiplyScalar(0.7)).add(new THREE.Vector3(0, 0.25, 0)).normalize();
+    this.camera.position.copy(this.controls.target).addScaledVector(dir, 2.1);
+    this.controls.minDistance = 0.8;
+    this.controls.maxDistance = 4;
+    this.controls.update();
   }
 
   private resize() {
@@ -187,6 +295,10 @@ export class Arm3D {
     this.angle = smoothTo(this.angle, this.targetAngle, dt, instant ? 0 : ANGLE_TAU_MS);
     this.intensity = smoothTo(this.intensity, this.targetIntensity, dt, instant ? 0 : COLOR_TAU_MS);
     this.elbow.rotation.x = elbowRotationX(this.angle);
+    if (this.foreArm) {
+      this.bend.setFromAxisAngle(this.foreArm.axis, -elbowRotationX(this.angle));
+      this.foreArm.bone.quaternion.copy(this.foreArm.rest).multiply(this.bend);
+    }
     this.applyColor();
     this.controls.update(); // cần cho enableDamping
     this.renderer.render(this.scene, this.camera);

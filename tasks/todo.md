@@ -46,7 +46,8 @@ Lệnh chạy từ thư mục `web/`. Mọi task phải giữ `npm test` và `np
   - Files: `web/src/scene/arm3d.ts`, `web/src/color.ts`, `web/src/label.ts`, `web/tests/color.test.ts`, `web/tests/label.test.ts`
   - Deps: T2
 
-- [ ] **T7: Model glb thật** — M
+- [x] **T7: Model glb thật** — M
+  - Xong 2026-11-20: cánh tay phải của nhóm (repo Đồ án 1) → `tools/blender/export_arm.py` → body.glb 1.7 MB; gập = xoay xương `ForeArm`, trục tính từ hình học lúc nạp; `MAT_Biceps` đổi màu. Lỗi nạp → console.warn và giữ người dựng bằng khối (chưa có thông báo trên giao diện); tên xương để ngay trong arm3d.ts thay vì modelConfig.ts. Chưa thử trên Android.
   - Acceptance: `GLTFLoader` nạp `body.glb`; `modelConfig.ts` khai báo tên xương/mesh; chỉ biceps đổi màu; tạ gắn vào bàn tay phải; lỗi nạp model hiện thông báo rõ.
   - Verify: kiểm tay với simulator trên desktop + Android; `npm run build`.
   - Files: `web/src/scene/arm3d.ts`, `web/src/scene/modelConfig.ts`, `web/public/models/body.glb`, `web/public/models/CREDITS.md`

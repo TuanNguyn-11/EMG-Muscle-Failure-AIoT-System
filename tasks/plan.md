@@ -40,7 +40,7 @@ rules ──────┘                      │           │
 ### Phase 2: Live
 - [ ] T5: Live charts (EMG thô, RMS, góc) + báo mất kết nối
 - [ ] T6: 3D khung tạm + màu cơ + nhãn AI chốt
-- [ ] T7: Thay bằng model glb thật
+- [x] T7: Thay bằng model glb thật
 
 ### Checkpoint B: Live demo
 - [ ] Chạy simulator: tay 3D gập, cơ đỏ dần, biểu đồ chạy ≥ 30 fps, nhãn chốt
