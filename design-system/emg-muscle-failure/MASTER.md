@@ -3,7 +3,7 @@
 > Trang nào có file `pages/<trang>.md` thì quy tắc trong đó **ghi đè** file này.
 > Sinh bằng `ui-ux-pro-max` 2.13.0 (2026-11-18), sau đó đã sửa tay. Phần "Đã loại khỏi bản sinh tự động" ở cuối giải thích các chỗ bỏ.
 
-**Loại sản phẩm:** Dashboard giám sát thời gian thực (IoT / y sinh) · **Chế độ:** tối (mặc định duy nhất ở v1)
+**Loại sản phẩm:** Dashboard giám sát thời gian thực (IoT / y sinh) · **Chế độ:** sáng (theo app Fall Guard / Healthcare Map)
 **Design dials:** Variance 4 (cân bằng) · Motion 3 (nhẹ) · Density 8 (dày, kiểu dashboard)
 **Style:** Data-Dense Dashboard (`style: data-dense-dashboard`): lưới 12 cột, gap 8px, card padding 12px, hiển thị tối đa dữ liệu.
 
@@ -11,48 +11,51 @@
 
 ## 1. Màu
 
-### Nền & bề mặt
+> **Cập nhật 2026-11-20:** dùng đúng bảng màu chung của hai app Android
+> `Di_dong/source_android/fall_guard_app` và `healthcare_map` (`www/styles.css`, khối `:root`).
+> Bảng tối cũ đã bỏ. Biến định nghĩa ở `web/src/styles.css`.
 
-| Vai trò | Hex | Biến |
+### Màu gốc của app
+
+| Tên trong app | Hex | Biến web |
 |---|---|---|
-| Background | `#0F172A` | `--color-background` |
-| Card | `#1B2336` | `--color-card` |
-| Muted (nền phụ, track slider) | `#272F42` | `--color-muted` |
-| Border | `#475569` | `--color-border` |
-| Foreground (chữ chính) | `#F8FAFC` | `--color-foreground` |
-| Muted foreground (chữ phụ, nhãn trục) | `#94A3B8` | `--color-muted-foreground` |
-| Focus ring | `#FFFFFF` | `--color-ring` |
+| navy (`--color-navy` / `--color-primary-dark`) | `#0B1E3A` | `--color-navy` |
+| slate (`--color-slate` / `--color-grey`) | `#5E6F88` | `--color-slate` |
+| primary | `#1976D2` | `--color-primary` (hover `#145da0`, soft `rgba(25,118,210,.10)`) |
+| nền (`--color-bg` / `--color-bg-light`) | `#F5F8FC` | `--color-bg` |
+| trắng | `#FFFFFF` | `--color-white` |
+| danger / alert | `#FF2C2C` | `--color-danger` |
+| border | `#DCE3EE` | `--color-border` |
+| online | `#2E9E5B` | `--color-online` |
+| warning | `#F59E0B` | `--color-warning` |
 
-### Màu mang nghĩa — mỗi màu **một nghĩa duy nhất**
+### Vai trò trong dashboard — mỗi màu **một nghĩa duy nhất**
 
-| Ý nghĩa | Hex | Biến | Dùng ở |
+| Ý nghĩa | Màu app | Biến | Dùng ở |
 |---|---|---|---|
-| **Mức gồng** (RMS / cơ bắp tay) | `#EF4444` | `--color-effort` | Đường RMS, cơ bắp tay đỏ hoàn toàn, thanh mức gồng |
-| Màu da (cơ thả lỏng) | `#E8B899` | `--color-skin` | Điểm đầu dải màu cơ |
-| EMG thô | `#38BDF8` | `--color-emg` | Đường tín hiệu thô |
-| Góc khuỷu | `#A78BFA` | `--color-angle` | Đường góc, số đo góc |
-| **ĐÃ THẤT BẠI CƠ** (nhãn AI) | `#F59E0B` | `--color-failure` | Banner nhãn, mốc trên timeline |
-| CHƯA THẤT BẠI CƠ | `#22C55E` | `--color-ok` | Banner nhãn |
-| Đang kết nối / LIVE | `#22C55E` | `--color-live` | Chấm trạng thái thiết bị |
-| Mất dữ liệu / stale | `#94A3B8` | `--color-stale` | Chấm + chữ "Thiết bị không gửi dữ liệu" |
+| Nền trang / card / viền | bg / white / border | `--color-background`, `--color-card`, `--color-border` | Card trắng + `--shadow-card`, bo 12px |
+| Chữ chính / chữ phụ | navy / slate | `--color-foreground`, `--color-muted-foreground` | |
+| Nút | primary | `.btn` | Kiểu `btn--secondary` của app (viền + chữ xanh, nền trắng) |
+| **Mức gồng** (RMS / cơ bắp tay) | danger `#FF2C2C` | `--color-effort` | Đường RMS, cơ đỏ hoàn toàn, thanh mức gồng |
+| Màu da (cơ thả lỏng) | — (`#E8B899`, màu mô hình) | `--color-skin` | Điểm đầu dải màu cơ |
+| EMG thô | primary | `--color-emg` | |
+| Góc khuỷu | primary-hover #145da0 | `--color-angle` | navy bị validator loại (quá tối, gần xám) |
+| **ĐÃ THẤT BẠI CƠ** | warning | `--color-failure` | Banner (chữ navy) |
+| CHƯA THẤT BẠI CƠ / LIVE / tập chuẩn | online | `--color-ok`, `--color-live` | Banner (chữ trắng), ô màu & thanh tập chuẩn (số vẫn màu navy) |
+| Không chuẩn / FAKE | warning (chữ dùng `#B45309` cho đủ tương phản) | | Số lần tập không chuẩn, chấm FAKE |
+| Mất dữ liệu / stale | slate | `--color-stale` | |
 
 **Quy tắc màu:**
-- Đỏ chỉ dùng cho **mức gồng**. Nhãn thất bại cơ dùng **hổ phách**, kèm icon và chữ. Không bao giờ dùng đỏ cho cảnh báo, để người xem không nhầm "cơ đỏ" với "đã thất bại".
-- Không truyền đạt bằng màu đơn thuần: nhãn AI luôn có chữ + icon; mỗi biểu đồ có tiêu đề + giá trị hiện tại dạng số.
-- Chữ trên nền `--color-card` phải đạt tương phản ≥ 4.5:1 (các màu trên đều đạt trên `#1B2336`; chữ trên banner hổ phách/xanh dùng `#0F172A`).
+- Đỏ `#FF2C2C` chỉ dùng cho **mức gồng** (trong app nó là màu cảnh báo, nhưng ở đây cảnh báo dùng cam) để người xem không nhầm "cơ đỏ" với "đã thất bại".
+- Không truyền đạt bằng màu đơn thuần: nhãn AI luôn có chữ + icon; mỗi biểu đồ có tiêu đề + giá trị số.
+- Chữ trắng trên `#2E9E5B` chỉ dùng cho chữ lớn đậm (banner 24px). Chữ trên nền cam dùng navy.
 
 ---
 
 ## 2. Chữ
 
-- **Sans (nhãn, tiêu đề, nội dung):** Fira Sans 400/500/600
-- **Mono (mọi con số: góc, RMS, thời gian, ID phiên):** Fira Code 400/500. Có `font-variant-numeric: tabular-nums` để số không nhảy độ rộng khi cập nhật 10 Hz.
-- Nguồn: kết quả `typography` "Dashboard Data" (Fira Code + Fira Sans).
-
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fira+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-```
+- **Chữ thường:** `'Segoe UI', Arial, Helvetica, sans-serif` (giống `--font-main` của app)
+- **Mono (mọi con số):** Fira Code 400/500, `font-variant-numeric: tabular-nums` để số không nhảy khi cập nhật 10 Hz.
 
 | Token | Cỡ | Dùng |
 |---|---|---|
@@ -77,10 +80,10 @@ Line-height 1.5 cho chữ, 1.2 cho số lớn.
 | `--space-lg` | 12px (padding card) |
 | `--space-xl` | 16px |
 | `--space-2xl` | 24px |
-| `--radius-sm` | 6px (nút, badge) |
-| `--radius-md` | 10px (card) |
+| `--radius-sm` | 8px (nút, badge — `--radius-btn` của app) |
+| `--radius-md` | 12px (card — `--radius-card` của app) |
 
-Bóng: nền tối nên không dùng bóng để tách lớp; tách bằng `--color-card` + viền 1px `--color-border`.
+Bóng: `--shadow-card` của app (`0 1px 3px rgba(11,30,58,.06), 0 6px 20px rgba(11,30,58,.06)`) + viền 1px `--color-border`.
 
 ---
 
@@ -134,7 +137,7 @@ Bóng: nền tối nên không dùng bóng để tách lớp; tách bằng `--co
 
 Từ kết quả `chart` "Real-Time Streaming":
 - Vẽ bằng canvas, giữ bộ đệm **10 s** gần nhất (spec), trục x là thời gian tương đối (giây).
-- Mỗi biểu đồ: tiêu đề + **giá trị hiện tại dạng số** ở góc phải (ví dụ `RMS 0.42 mV · 68%`).
+- Mỗi biểu đồ: tiêu đề + đơn vị + **giá trị dạng số** ở góc phải (màu navy, không dùng màu đường). Crosshair đồng bộ ba biểu đồ: rê chuột → ba viên hiện giá trị tại cùng giây; chỉ biểu đồ dưới cùng có trục thời gian; đường MVC có nhãn trực tiếp.
 - RMS vẽ thêm đường ngang nét đứt tại `rmsRef` (MVC), nhãn "MVC".
 - Có nút **Tạm dừng / Tiếp tục** cập nhật biểu đồ (yêu cầu a11y cho nội dung tự chạy); 3D và nhãn AI vẫn cập nhật khi tạm dừng.
 - Nền biểu đồ trong suốt trên card; lưới `rgba(148,163,184,0.15)`; nhãn trục `--color-muted-foreground` 12px.
@@ -149,7 +152,7 @@ Từ `--stack threejs`:
 - Cơ bắp tay: material **riêng** (clone), chỉ đổi `color` theo `bicepsColor(intensity)`; làm mượt bằng lọc mũ (τ ≈ 100 ms) để không nhấp nháy ở 10 Hz.
 - Nền canvas `--color-background`; một đèn hemisphere + một directional, không cần shadow ở v1 (tiết kiệm GPU điện thoại).
 - Xoay camera bằng chuột **và** chạm (OrbitControls hỗ trợ cả hai); giới hạn góc để luôn nhìn thấy tay phải.
-- Overlay trên canvas: số góc lớn (`--text-display`, màu `--color-angle`) + thanh mức gồng (dải `--color-skin` → `--color-effort`).
+- Overlay trên canvas: số góc lớn (`--text-display`, màu chữ navy) + thanh mức gồng (dải `--color-skin` → `--color-effort`).
 - `renderer.setPixelRatio(Math.min(devicePixelRatio, 2))`; dừng vòng render khi tab ẩn (`visibilitychange`).
 
 ---
@@ -202,3 +205,10 @@ Breakpoint: 375 · 768 · 1024 · 1440. Mobile-first; không cuộn ngang; khôn
 | GSAP scroll reveal | Dashboard một màn hình, không cuộn; tránh thêm dependency |
 | Card hover nâng lên + `cursor: pointer` trên mọi card | Card dashboard không bấm được; chỉ phần tử bấm được mới có pointer |
 | Modal nền trắng, input viền `#E2E8F0` | Không hợp chế độ tối; v1 không có modal/form |
+
+## Rà soát hoàn thiện (chống "giống AI làm")
+- Nhãn ô số liệu viết chữ thường 13px semibold; không dùng chữ IN HOA giãn chữ (tiếng Việt có dấu khó đọc).
+- Không quầng sáng màu quanh icon/nút; nút không "nhấc lên" khi hover, chỉ đổi nền. Bóng chỉ dùng thang `--shadow-*` trung tính.
+- Nút đổi nhãn theo trạng thái (Fake/Dừng Fake, Tạm dừng/Tiếp tục) **không** kèm `aria-pressed`; kiểu dáng dựa vào `data-on`.
+- Vùng chạm ≥ 44px trên màn cảm ứng; chữ nhỏ nhất 12px (kể cả số trên trục biểu đồ).
+- Màn ≤ 400px: tiêu đề rút còn "EMG"; desktop thấp (< 828px) cho trang cuộn thay vì ép biểu đồ dưới 100px.
