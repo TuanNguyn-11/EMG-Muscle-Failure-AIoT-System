@@ -1,21 +1,14 @@
 # Nguồn model 3D
 
-## body.glb — người cơ bắp, tay phải có vật liệu `biceps_r`
+## body.glb — cánh tay phải, có vật liệu `MAT_Biceps`
 
-- **Nguồn:** MakeHuman (bản chính thức), chỉ dùng tài sản gốc (core assets).
-- **License:** CC0 — tài sản gốc của MakeHuman và model xuất từ bản chính thức là CC0, không bắt buộc ghi nguồn.
-  https://static.makehumancommunity.org/about/license.html
-  (Ghi nguồn ở đây để minh bạch.) **Không** dùng tài sản tải thêm từ kho cộng đồng (có thể là CC-BY) trừ khi ghi license riêng bên dưới.
-- **Xử lý:** `web/tools/blender/prepare_body.py` tách vùng cơ bắp tay trước phải thành vật liệu `biceps_r` và xuất GLB.
-
-### Thông số đã dùng (điền khi tạo model)
+- **Tác giả:** thành viên nhóm (điền tên) — dựng trong Blender cho Đồ án 1.
+- **File gốc:** `Model 3D/Tao khoi1.blend` trong repo [EMG-Elbow-Angle-Acquisition-System](https://github.com/TuanNguyn-11/EMG-Elbow-Angle-Acquisition-System) (Git LFS).
+- **Quyền dùng:** dùng trong đồ án của nhóm; hỏi tác giả trước khi dùng ở nơi khác.
+- **Xử lý:** `web/tools/blender/export_arm.py` (Blender 5.3) — bỏ lưới điêu khắc gốc và cánh tay bản sao đứng yên, giảm còn ~80k tam giác, xuất GLB nén Draco (~1.7 MB).
 
 | Mục | Giá trị |
 |---|---|
-| Phiên bản MakeHuman | |
-| Phiên bản Blender | |
-| Gender / Muscle / Weight | |
-| Skeleton | Default |
-| Skin | |
-| Tham số script khác mặc định | |
-| Kích thước body.glb | |
+| Xương | Shoulder → UpperArm → ForeArm → Hand (+ 4 xương phụ ở cẳng tay) |
+| Gập khuỷu | xoay `ForeArm`; trục gập được tính lúc nạp từ hướng bắp tay (`MAT_Biceps`) và cẳng tay |
+| Vật liệu | `MAT_ArmDefault` (da), `MAT_Biceps` (đổi màu theo mức gồng) |
